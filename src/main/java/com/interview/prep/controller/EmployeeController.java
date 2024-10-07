@@ -20,7 +20,7 @@ public class EmployeeController {
     @Autowired
     private Bucket4jRateLimiterService rateLimiterService;
 
-    @GetMapping("/protected-resource")
+    @GetMapping("/employees")
     public ResponseEntity<?> protectedResource(@RequestHeader("User-Id") String userId) {
         if (rateLimiterService.isAllowed(userId)) {
             // Process the request and return a response

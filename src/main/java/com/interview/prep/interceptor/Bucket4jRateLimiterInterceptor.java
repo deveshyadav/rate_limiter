@@ -1,4 +1,4 @@
-package com.interview.prep.interceptor;
+/*package com.interview.prep.interceptor;
 
 import com.interview.prep.service.Bucket4jRateLimiterService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,5 +26,5 @@ public class Bucket4jRateLimiterInterceptor implements HandlerInterceptor {
 
         return true;
     }
-}
+}*/
 

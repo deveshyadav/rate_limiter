@@ -1,4 +1,4 @@
-package com.interview.prep.configuration;
+/*package com.interview.prep.configuration;
 
 import com.interview.prep.interceptor.Bucket4jRateLimiterInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,3 +19,4 @@ public class WebConfig implements WebMvcConfigurer {
     }
 }
 
+*/
