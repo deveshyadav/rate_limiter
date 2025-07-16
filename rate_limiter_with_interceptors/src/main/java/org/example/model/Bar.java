@@ -1,6 +1,6 @@
-package model;
+package org.example.model;
 
-import service.InterceptorService;
+import org.example.service.InterceptorService;
 
 public class Bar {
 
@@ -19,4 +19,5 @@ public class Bar {
         interceptorService.checkLimitBar("y");
         System.out.println("Method y called");
     }
+    //6530 2700 0461 1005
 }

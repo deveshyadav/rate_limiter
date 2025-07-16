@@ -1,6 +1,6 @@
-package model;
+package org.example.model;
 
-import service.InterceptorService;
+import org.example.service.InterceptorService;
 
 public class Foo {
     InterceptorService interceptorService;

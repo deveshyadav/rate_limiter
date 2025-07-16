@@ -1,4 +1,4 @@
-package service;
+package org.example.service;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -21,8 +21,8 @@ public class SlidingWindowRateLimiter {
         }
         if (timestamps.size() < maxRequests) {
             timestamps.add(now);
-            return true;
+            return false;
         }
-        return false;
+        return true;
     }
 }
