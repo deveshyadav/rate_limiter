@@ -1,5 +1,6 @@
-package org.example.service;
+package org.example.config;
 
+import org.example.service.RateLimitInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;

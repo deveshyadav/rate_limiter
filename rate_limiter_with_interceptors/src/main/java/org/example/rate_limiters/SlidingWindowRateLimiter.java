@@ -1,9 +1,9 @@
-package org.example.service;
+package org.example.rate_limiters;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class SlidingWindowRateLimiter {
+public class SlidingWindowRateLimiter implements RateLimiter{
     private final int maxRequests;
     private final long timeWindowMillis;
     private final Queue<Long> timestamps = new LinkedList<>();
@@ -21,8 +21,8 @@ public class SlidingWindowRateLimiter {
         }
         if (timestamps.size() < maxRequests) {
             timestamps.add(now);
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 }
