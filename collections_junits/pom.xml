@@ -33,6 +33,11 @@
             <artifactId>resilience4j-spring-boot2</artifactId>
             <version>1.7.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <scope>test</scope>
+        </dependency>
 
     </dependencies>
 

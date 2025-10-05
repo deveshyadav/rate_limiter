@@ -1,4 +1,9 @@
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.*;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
@@ -6,6 +11,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class MapTest {
 
@@ -15,20 +23,20 @@ public class MapTest {
         Map<String, Integer> map = new HashMap<>();
         // TODO: put("apple", 100), put("banana", 200), put("orange", 300)
 
-        Assertions.assertEquals(3, map.size());
-        Assertions.assertTrue(map.containsKey("banana"));
-        Assertions.assertEquals(200, map.get("banana"));
+        assertEquals(3, map.size());
+        assertTrue(map.containsKey("banana"));
+        assertEquals(200, map.get("banana"));
         NavigableMap<Integer,Integer> mm = new TreeMap<>();
 
         // Case 2: Updating values conditionally using computeIfPresent
         // TODO: Increase value of "apple" by 50 if present
 
-        Assertions.assertEquals(150, map.get("apple"));
+        assertEquals(150, map.get("apple"));
 
         // Case 3: Using computeIfAbsent
         // TODO: Insert "grape" with default 400 if not present
 
-        Assertions.assertEquals(400, map.get("grape"));
+        assertEquals(400, map.get("grape"));
 
         // Case 4: Iteration and filtering
         // TODO: Create filtered map where value > 200
@@ -38,7 +46,7 @@ public class MapTest {
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
         Assertions.assertFalse(filtered.containsKey("apple"));
-        Assertions.assertTrue(filtered.containsKey("grape"));
+        assertTrue(filtered.containsKey("grape"));
     }
 
     @Test
@@ -50,9 +58,9 @@ public class MapTest {
         Map<String, Long> frequency = words.stream()
             .collect(Collectors.groupingBy(w -> w, Collectors.counting()));
 
-        Assertions.assertEquals(3, frequency.get("apple"));
-        Assertions.assertEquals(2, frequency.get("banana"));
-        Assertions.assertEquals(1, frequency.get("orange"));
+        assertEquals(3, frequency.get("apple"));
+        assertEquals(2, frequency.get("banana"));
+        assertEquals(1, frequency.get("orange"));
     }
 
     @Test
@@ -73,7 +81,7 @@ public class MapTest {
                 LinkedHashMap::new
             ));
 
-        Assertions.assertEquals(List.of("Alice", "John", "Bob"), new ArrayList<>(sorted.keySet()));
+        assertEquals(List.of("Alice", "John", "Bob"), new ArrayList<>(sorted.keySet()));
     }
 
     @Test
@@ -93,9 +101,9 @@ public class MapTest {
         deptSalaries.put("IT", it);
 
         // Assertions
-        Assertions.assertEquals(2, deptSalaries.get("HR").size());
-        Assertions.assertEquals(6000, deptSalaries.get("HR").get("Bob"));
-        Assertions.assertEquals(8000, deptSalaries.get("IT").get("Charlie"));
+        assertEquals(2, deptSalaries.get("HR").size());
+        assertEquals(6000, deptSalaries.get("HR").get("Bob"));
+        assertEquals(8000, deptSalaries.get("IT").get("Charlie"));
     }
 
     @Test
@@ -108,10 +116,10 @@ public class MapTest {
         Map<String, Integer> merged = new HashMap<>(map1);
         map2.forEach((k, v) -> merged.merge(k, v, Integer::sum));
 
-        Assertions.assertEquals(3, merged.size());
-        Assertions.assertEquals(10, merged.get("A"));
-        Assertions.assertEquals(50, merged.get("B")); // 20 + 30
-        Assertions.assertEquals(40, merged.get("C"));
+        assertEquals(3, merged.size());
+        assertEquals(10, merged.get("A"));
+        assertEquals(50, merged.get("B")); // 20 + 30
+        assertEquals(40, merged.get("C"));
     }
 
 
@@ -128,8 +136,8 @@ public class MapTest {
         Map<String, Long> result = employees.stream()
                 .collect(Collectors.groupingBy(Employee::getDepartment, Collectors.counting()));
 
-        Assertions.assertEquals(2, result.get("HR"));
-        Assertions.assertEquals(1, result.get("Tech"));
+        assertEquals(2, result.get("HR"));
+        assertEquals(1, result.get("Tech"));
     }
 
     @Test
@@ -146,8 +154,8 @@ public class MapTest {
                 .collect(Collectors.groupingBy(Employee::getDepartment,
                         Collectors.maxBy(Comparator.comparing(Employee::getSalary))));
 
-        Assertions.assertEquals("Bob", result.get("HR").get().getName());
-        Assertions.assertEquals("Charlie", result.get("Tech").get().getName());
+        assertEquals("Bob", result.get("HR").get().getName());
+        assertEquals("Charlie", result.get("Tech").get().getName());
     }
 
     @Test
@@ -163,8 +171,8 @@ public class MapTest {
         Map<Boolean, List<Student>> result = students.stream()
                 .collect(Collectors.partitioningBy(s -> s.getMarks() >= 40));
 
-        Assertions.assertEquals(2, result.get(true).size());
-        Assertions.assertEquals(1, result.get(false).size());
+        assertEquals(2, result.get(true).size());
+        assertEquals(1, result.get(false).size());
     }
 
     @Test
@@ -180,7 +188,7 @@ public class MapTest {
                 .flatMap(order -> order.getItems().stream())
                 .collect(Collectors.toList());
 
-        Assertions.assertEquals(3, allItems.size());
+        assertEquals(3, allItems.size());
     }
 
     @Test
@@ -303,6 +311,67 @@ public class MapTest {
         public double getPrice() {
             return price;
         }
+    }
+
+    /**
+     * Problem:- Fetch orders data from json, have a lookup to get orders from given start-end time ranges.
+     *
+     * If you use a List:
+     * You’d have to scan the entire list every time to find orders in a time range.
+     * That’s O(n) per query, even if the list is sorted.
+     *
+     * Use TreeMap
+     * It keeps keys (orderTime) sorted automatically.
+     * You can directly use subMap(start, end) — it gives you the range in O(log n + k) (k = results).
+     * No full scan needed; it uses tree navigation to jump to start time and collect efficiently.
+     *
+     * @throws Exception
+     */
+    @Test
+    void testOrdersWithinTimeRange() throws Exception {
+        String json = """
+            [
+              {"orderId":"O1","orderName":"TV","orderTime":"2025-10-04T10:00:00"},
+              {"orderId":"O2","orderName":"Laptop","orderTime":"2025-10-04T11:00:00"},
+              {"orderId":"O3","orderName":"Phone","orderTime":"2025-10-04T11:00:00"},
+              {"orderId":"O4","orderName":"Watch","orderTime":"2025-10-04T12:30:00"},
+              {"orderId":"O5","orderName":"Tab","orderTime":"2025-10-04T12:35:00"},
+              {"orderId":"O6","orderName":"SmartTV","orderTime":"2025-10-04T12:36:00"}
+            ]
+        """;
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<Order1> orders = mapper.readValue(json, new TypeReference<>() {});
+
+        TreeMap<LocalDateTime, List<Order1>> orderMap = new TreeMap<>();
+        DateTimeFormatter fmt = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+        for (Order1 o : orders) {
+            LocalDateTime time = LocalDateTime.parse(o.orderTime, fmt);
+            orderMap.computeIfAbsent(time, t -> new ArrayList<>()).add(o);
+        }
+
+        LocalDateTime start = LocalDateTime.parse("2025-10-04T10:30:00", fmt);
+        LocalDateTime end = LocalDateTime.parse("2025-10-04T12:00:00", fmt);
+
+        List<Order1> result = orderMap.subMap(start, true, end, true)
+                .values()
+                .stream()
+                .flatMap(List::stream)
+                .toList();
+
+        List<String> resultIds = result.stream().map(o -> o.orderId).toList();
+
+        assertEquals(List.of("O2", "O3"), resultIds);
+        assertTrue(result.stream().allMatch(o ->
+                !LocalDateTime.parse(o.orderTime, fmt).isBefore(start) &&
+                        !LocalDateTime.parse(o.orderTime, fmt).isAfter(end)));
+    }
+
+    static class Order1 {
+        public String orderId;
+        public String orderName;
+        public String orderTime;
     }
 
 

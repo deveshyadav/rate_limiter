@@ -1,7 +1,11 @@
 import org.junit.jupiter.api.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -12,7 +16,8 @@ public class ArrayListTest {
 
     // Test adding elements to a list and retrieving them by index
     @Test
-    void testCrudInList() {
+    private void testCrudInList() {
+        //Function
 
         // TODO: Remove element 20 by value
         List<Integer> list1 = new ArrayList<>(Arrays.asList(10, 20, 30));
@@ -65,6 +70,7 @@ public class ArrayListTest {
     @Test
     void testStreamFilterAndCollect() {
         List<Integer> list = Arrays.asList(1, 2, 3, 4, 5);
+        list.sort((x,y)->Integer.compare(x,y));
         List<Integer> evens = list.stream().filter(x->x%2==0).toList(); // TODO: Filter only even numbers
 
         Assertions.assertNotNull(evens);
@@ -111,7 +117,8 @@ public class ArrayListTest {
     void testDistinctElements() {
         List<String> list = Arrays.asList("a", "b", "a", "c", "b");
         List<String> unique = list.stream().distinct().toList(); // TODO: Use stream distinct to remove duplicates
-
+        String str = "ss";
+        //System.out.println(Pattern.);
         assertEquals(3, unique.size());
         assertEquals(Arrays.asList("a", "b", "c"), unique);
     }
@@ -173,9 +180,14 @@ public class ArrayListTest {
                         Collectors.mapping(p -> p.name, Collectors.toList())
                 ));
 
+
+
         assertEquals(Arrays.asList("Alice", "Charlie", "Eve"), grouped.get("20s"));
         assertEquals(List.of("Bob"), grouped.get("30s"));
         assertEquals(List.of("David"), grouped.get("40s"));
+
+        String str = "ss";
+
     }
 
     @Test
@@ -410,6 +422,8 @@ public class ArrayListTest {
         assertEquals(30.0, stats.getAverage());
         assertEquals(50, stats.getMax());
         assertEquals(10, stats.getMin());
+        ExecutorService ee = Executors.newFixedThreadPool(1);
+
     }
 
 
@@ -452,6 +466,83 @@ public class ArrayListTest {
                 Map.entry('b', 1L)
         ), sorted);
     }
+
+    @Test
+    void testingListOfList(){
+        List<List<Integer>> input = Arrays.asList(
+                List.of(1, 3),  // Employee 1, Manager 3
+                List.of(2, 3),  // Employee 2, Manager 3
+                List.of(3, 6),  // Employee 3, Manager 6
+                List.of(4, 5),  // Employee 4, Manager 5
+                List.of(5, 6),  // Employee 5, Manager 6
+                List.of(0, 1),  // Employee 0, Manager 1
+                List.of(1, 8)   // Employee 1, Manager 8 (Note: Employee 1 has two managers in this example)
+        );
+
+        // Group by manager and collect a list of employees for each manager
+        Map<Integer, Long> employeesCountPerManager = input.stream()
+                .collect(Collectors.groupingBy(
+                        list -> list.get(1), // Classifier function: Group by manager ID (second element)
+                        Collectors.counting()
+                                 // Downstream collector: Collect employee IDs into a list
+
+                ));
+
+        // Group by manager and collect a list of employees for each manager
+        Map<Integer, List<Integer>> employeesListPerManager = input.stream()
+                .collect(Collectors.groupingBy(
+                        list -> list.get(1), // Classifier function: Group by manager ID (second element)
+                        Collectors.mapping(
+                                list -> list.get(0), // Mapper function: Extract employee ID (first element)
+                                Collectors.toList()  // Downstream collector: Collect employee IDs into a list
+                        )
+                ));
+
+        employeesCountPerManager.forEach((x,y)-> System.out.println("Manager:"+x+" have employees number: "+y));
+
+        // Print the result
+        employeesListPerManager.forEach((managerId, employeeList) ->
+                System.out.println("Manager ID: " + managerId + ", Employees: " + employeeList)
+        );
+    }
+
+    public static void main(String[] args) {
+       List<String> xx = Arrays.stream("my name is devesh yadav".split(" ")).collect(Collectors.toList());
+       Collections.sort(xx);
+        System.out.println(xx);
+
+        //TreeMap<>
+    }
+
+    @Test
+    public void testConvertingListPojoToMap(){
+        Partner p1 = new Partner(1,"p1");
+        Partner p2 = new Partner(2,"p2");
+        Partner p3 = new Partner(3,"p3");
+        List<Partner> partners = Arrays.asList(p1,p2,p3);
+
+        Map<Integer,Partner> map = partners.stream().collect(Collectors.toMap(p->p.id, p->p));
+        assertEquals("p1",map.get(1).name);
+
+    }
+
+    class Partner{
+        int id;
+        String name;
+        Partner(int id, String name){
+            this.id=id;
+            this.name=name;
+        }
+
+        @Override
+        public String toString() {
+            return "Partner{" +
+                    "id=" + id +
+                    ", name='" + name + '\'' +
+                    '}';
+        }
+    }
+
 
 
 }
